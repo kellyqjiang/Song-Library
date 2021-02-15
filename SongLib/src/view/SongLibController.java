@@ -51,6 +51,10 @@ public class SongLibController {
 		Song add = new Song();
 		add.setName(name.getText());
 		add.setArtist(artist.getText());
+		String nameSong = add.toString().substring(0, add.toString().indexOf(','));
+		String artistSong = add.toString().substring(0, add.toString().indexOf(','));
+		String nameSong = add.toString().substring(0, add.toString().indexOf(','));
+		String nameSong = add.toString().substring(0, add.toString().indexOf(','));
 		obvSongs.add(add);
 	}
 	
