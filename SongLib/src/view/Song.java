@@ -52,4 +52,8 @@ public class Song {
 	public void setYear(String gotYear) {
 		year = gotYear;
 	}
+	
+	public String toString() {
+		return name + "," + artist + "," + album + "," + year;
+	}
 }
