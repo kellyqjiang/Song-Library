@@ -54,6 +54,6 @@ public class Song {
 	}
 	
 	public String toString() {
-		return name + "," + artist + "," + album + "," + year;
+		return name;
 	}
 }
