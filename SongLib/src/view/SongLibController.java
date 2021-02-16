@@ -28,10 +28,10 @@ import java.util.Optional;
 public class SongLibController {
 	
 	@FXML         
-	ListView<String> songs;
+	ListView<Song> songs;
 	
-	private ObservableList<String> obvSongs;
-	ArrayList<Song> songList;
+	private ObservableList<Song> obvSongs;
+	//ArrayList<Song> songList;
 	//private ArrayList<String> songNames;
 	
 	@FXML
@@ -48,11 +48,8 @@ public class SongLibController {
 
 	public void start(Stage mainStage) {                
 		// create an ObservableList 
-		songs = new ListView<String>();
-		songs.setEditable(true);
-		songList = new ArrayList<Song>();
-		//songNames = new ArrayList<String>();
 		obvSongs = FXCollections.observableArrayList();
+		//songList = new ArrayList<Song>();
 		
 		songs.setItems(obvSongs);
 		
@@ -64,58 +61,48 @@ public class SongLibController {
 		.selectedIndexProperty()
 		.addListener(
 				(obs, oldVal, newVal) -> 
-				showItemInputDialog(mainStage));
+				showDetails()); //instead of showItemInputDialog, show details
 	}
 
-	private void showItemInputDialog(Stage mainStage) {                
-		String item = songs.getSelectionModel().getSelectedItem();
-		int index = songs.getSelectionModel().getSelectedIndex();
-
-		TextInputDialog dialog = new TextInputDialog(item);
-		dialog.initOwner(mainStage); dialog.setTitle("List Item");
-		dialog.setHeaderText("Selected Item (Index: " + index + ")");
-		dialog.setContentText("Enter name: ");
-
-		Optional<String> result = dialog.showAndWait();
-		if (result.isPresent()) { obvSongs.set(index, result.get()); }
+	private void showDetails() {                
+		Song song = songs.getSelectionModel().getSelectedItem();
+		
+		name.setText(song.getName());
+		artist.setText(song.getArtist());
+		album.setText(song.getAlbum());
+		year.setText(song.getYear());
 	}
 	
 	
 	public void addSong(ActionEvent e) {
+		//check if name and artist already exist
+		//check if name and artist are filled out at least (album and year optional)
+		//add in alphabetical order
+		//popup confirm?
+		
 		Song newSong = new Song();
 		newSong.setName(name.getText());
 		newSong.setArtist(artist.getText());
 		newSong.setAlbum(album.getText());
 		newSong.setYear(year.getText());
 		
-		songList.add(0, newSong);
-		
-		String addString = newSong.toString();
-		
-		String nameSong = addString.substring(0, addString.indexOf(','));
-		addString = addString.substring(addString.indexOf(',')+1);
-		
-		String artistSong = addString.substring(0, addString.indexOf(','));
-		addString = addString.substring(addString.indexOf(',')+1);
-		
-		String albumSong = addString.substring(0, addString.indexOf(','));
-		addString = addString.substring(addString.indexOf(',')+1);
-		
-		String yearSong = addString.substring(0);
-		
-		System.out.println(nameSong);
-		System.out.println(artistSong);
-		System.out.println(albumSong);
-		System.out.println(yearSong);
-		
-		songs.getItems().add(0, nameSong);
+		obvSongs.add(newSong);
 	}
 	
 	public void delete(ActionEvent e) {
+		//popup confirm
 		
+		Song song = songs.getSelectionModel().getSelectedItem();
+		
+		obvSongs.remove(song);
 	}
 	
 	public void edit(ActionEvent e) {
+		Song existingSong = songs.getSelectionModel().getSelectedItem();
 		
+		existingSong.setName(name.getText());
+		existingSong.setArtist(artist.getText());
+		existingSong.setAlbum(album.getText());
+		existingSong.setYear(year.getText());
 	}
 }
