@@ -86,12 +86,16 @@ public class SongLibController {
 	}
 
 	private void showDetails() {                
+		try {
 		Song song = songs.getSelectionModel().getSelectedItem();
 		
 		name.setText(song.getName());
 		artist.setText(song.getArtist());
 		album.setText(song.getAlbum());
 		year.setText(song.getYear());
+		} catch(java.lang.NullPointerException exception) {
+
+		}
 	}
 	
 	
