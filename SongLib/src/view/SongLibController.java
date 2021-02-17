@@ -97,8 +97,6 @@ public class SongLibController {
 				alert.setContentText("A song with this name and artist already exists!");
 				alert.showAndWait();
 				isCopy = true;
-			} else {
-				break;
 			}
 		}
 		
