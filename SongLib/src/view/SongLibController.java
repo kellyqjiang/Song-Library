@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter; 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class SongLibController {
 	
@@ -67,6 +68,21 @@ public class SongLibController {
 		
 		
 		songs.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> showDetails());
+		
+		mainStage.setOnCloseRequest(event -> {
+			try {
+				FileWriter file = new FileWriter("songsList.txt");
+				for(int i = 0; i < obvSongs.size(); i++) {
+					Song currSong = obvSongs.get(i);
+					String songInfo = currSong.getName() + "," + currSong.getArtist() + "," + currSong.getAlbum() + "," + currSong.getYear() + "\n";
+					file.write(songInfo);
+				}
+				file.close();
+				
+			} catch (Exception e) {
+			
+			}
+		});
 	}
 
 	private void showDetails() {                
@@ -224,12 +240,8 @@ public class SongLibController {
 					
 					String songYear = info;
 					
-					Song addSong = new Song();
-					addSong.setName(songName);
-					addSong.setArtist(songArtist);
-					addSong.setAlbum(songAlbum);
-					addSong.setYear(songYear);
-					
+					Song addSong = new Song(songName, songArtist, songAlbum, songYear);
+
 					obvSongs.add(addSong);
 					
 					Comparator<Song> comparator = Comparator.comparing(Song::getName);
@@ -246,28 +258,6 @@ public class SongLibController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		String songName = info.substring(0, info.indexOf(","));
-		info = info.substring(info.indexOf(",")+1);
-		
-		String songArtist = info.substring(0, info.indexOf(","));
-		info = info.substring(info.indexOf(",")+1);
-		
-		String songAlbum = info.substring(0, info.indexOf(","));
-		info = info.substring(info.indexOf(",")+1);
-		
-		String songYear = info;
-		
-		Song addSong = new Song();
-		addSong.setName(songName);
-		addSong.setArtist(songArtist);
-		addSong.setAlbum(songAlbum);
-		addSong.setYear(songYear);
-		
-		obvSongs.add(addSong);
-		
-		Comparator<Song> comparator = Comparator.comparing(Song::getName);
-		obvSongs.sort(comparator);
 		
 		file.close();
 	}
