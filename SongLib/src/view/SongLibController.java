@@ -256,7 +256,7 @@ public class SongLibController {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			
 		}
 		
 		file.close();
