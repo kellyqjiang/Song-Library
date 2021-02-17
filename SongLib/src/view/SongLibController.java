@@ -4,41 +4,33 @@ package view;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Optional;
-
-//import javafx.application.Application;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter; 
+import java.io.IOException;
 
 public class SongLibController {
+	
+	//null error???
+	//file reading/writing
 	
 	@FXML         
 	ListView<Song> songs;
 	
 	private ObservableList<Song> obvSongs;
-	//ArrayList<Song> songList;
-	//private ArrayList<String> songNames;
 	
 	@FXML
 	private TextField name;
@@ -55,15 +47,24 @@ public class SongLibController {
 	@FXML
 	private Label addError;
 
-	public void start(Stage mainStage) {                
+	public void start(Stage mainStage) throws IOException {                
 		// create an ObservableList 
 		obvSongs = FXCollections.observableArrayList();
-		//songList = new ArrayList<Song>();
+		
+		loadPrevSongs();
 		
 		songs.setItems(obvSongs);
 		
 		// select the first item
-		songs.getSelectionModel().selectFirst();
+		songs.getSelectionModel().select(0);
+		Song curr = songs.getSelectionModel().getSelectedItem();
+		if(curr != null) {
+			name.setText(curr.getName());
+			artist.setText(curr.getArtist());
+			album.setText(curr.getAlbum());
+			year.setText(curr.getYear());
+		}
+		
 		
 		songs.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> showDetails());
 	}
@@ -147,6 +148,11 @@ public class SongLibController {
     			year.setText("");
     		} else if(obvSongs.get(selectIndex) != null) {
     			songs.getSelectionModel().select(selectIndex);
+    			Song curr = songs.getSelectionModel().getSelectedItem();
+    			name.setText(curr.getName());
+    			artist.setText(curr.getArtist());
+    			album.setText(curr.getAlbum());
+    			year.setText(curr.getYear());
     		} else if(obvSongs.get(selectIndex-1) != null) {
     			songs.getSelectionModel().select(selectIndex-1);
     		}
@@ -190,5 +196,80 @@ public class SongLibController {
         		songs.getItems().set(selectedSong, existingSong);
         	}
         }
+	}
+	
+	public void loadPrevSongs() throws IOException {
+		int chara;
+		
+		FileReader file = new FileReader("songsList.txt");
+		
+		String info = "";
+		
+		if((chara = file.read()) == -1) { //checks if it's the end of file automatically
+			return;
+		} else {
+			info += (char)chara;
+		}
+		
+		try {
+			while((chara = file.read()) != -1) {
+				if((char)chara == '\n') { //end of one song's detail in file
+					String songName = info.substring(0, info.indexOf(","));
+					info = info.substring(info.indexOf(",")+1);
+					
+					String songArtist = info.substring(0, info.indexOf(","));
+					info = info.substring(info.indexOf(",")+1);
+					
+					String songAlbum = info.substring(0, info.indexOf(","));
+					info = info.substring(info.indexOf(",")+1);
+					
+					String songYear = info;
+					
+					Song addSong = new Song();
+					addSong.setName(songName);
+					addSong.setArtist(songArtist);
+					addSong.setAlbum(songAlbum);
+					addSong.setYear(songYear);
+					
+					obvSongs.add(addSong);
+					
+					Comparator<Song> comparator = Comparator.comparing(Song::getName);
+		    		obvSongs.sort(comparator);
+		    		
+		    		int selectIndex = obvSongs.indexOf(addSong);
+		    		songs.getSelectionModel().select(selectIndex);
+		    		
+		    		info = "";
+				} else {
+					info += (char)chara;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String songName = info.substring(0, info.indexOf(","));
+		info = info.substring(info.indexOf(",")+1);
+		
+		String songArtist = info.substring(0, info.indexOf(","));
+		info = info.substring(info.indexOf(",")+1);
+		
+		String songAlbum = info.substring(0, info.indexOf(","));
+		info = info.substring(info.indexOf(",")+1);
+		
+		String songYear = info;
+		
+		Song addSong = new Song();
+		addSong.setName(songName);
+		addSong.setArtist(songArtist);
+		addSong.setAlbum(songAlbum);
+		addSong.setYear(songYear);
+		
+		obvSongs.add(addSong);
+		
+		Comparator<Song> comparator = Comparator.comparing(Song::getName);
+		obvSongs.sort(comparator);
+		
+		file.close();
 	}
 }
