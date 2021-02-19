@@ -102,15 +102,25 @@ public class SongLibController {
 	public void addSong(ActionEvent e) {
 		//get song details from user
 		Song newSong = new Song();
-		newSong.setName(name.getText());
-		newSong.setArtist(artist.getText());
-		newSong.setAlbum(album.getText());
-		newSong.setYear(year.getText());
+		newSong.setName(name.getText().trim());
+		newSong.setArtist(artist.getText().trim());
+		newSong.setAlbum(album.getText().trim());
+		newSong.setYear(year.getText().trim());
+		
+		//throws error message if there is a '|' in the name, artist, or album
+		if(newSong.getName().contains("|") || newSong.getArtist().contains("|") || newSong.getAlbum().contains("|")) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Add Error");
+			alert.setHeaderText(null);
+			alert.setContentText(" Cannot use the | symbol");
+			alert.showAndWait();
+			return;
+		}
 		
 		boolean isCopy = false; //if we find a copy, this will turn true
 		
 		for(int i = 0; i < obvSongs.size(); i++) { //loops into obvSongs to check if the song exists or not
-			if(obvSongs.get(i).getName().equals(name.getText()) && obvSongs.get(i).getArtist().equals(artist.getText())) {
+			if(obvSongs.get(i).getName().equals(name.getText().trim()) && obvSongs.get(i).getArtist().equals(artist.getText().trim())) {
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Add Error");
 				alert.setHeaderText(null);
@@ -190,7 +200,7 @@ public class SongLibController {
 		Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
         	for(int i = 0; i < obvSongs.size(); i++) { //loops into obvSongs to check if the song exists or not
-    			if(obvSongs.get(i).getName().equals(name.getText()) && obvSongs.get(i).getArtist().equals(artist.getText())) {
+    			if(obvSongs.get(i).getName().equals(name.getText().trim()) && obvSongs.get(i).getArtist().equals(artist.getText().trim())) {
     				Alert alert2 = new Alert(AlertType.ERROR);
     				alert2.setTitle("Edit Error");
     				alert2.setHeaderText(null);
@@ -205,10 +215,20 @@ public class SongLibController {
         	if(!isCopy) {
         		Song existingSong = songs.getSelectionModel().getSelectedItem();
         		
-        		existingSong.setName(name.getText());
-        		existingSong.setArtist(artist.getText());
-        		existingSong.setAlbum(album.getText());
-        		existingSong.setYear(year.getText());
+        		existingSong.setName(name.getText().trim());
+        		existingSong.setArtist(artist.getText().trim());
+        		existingSong.setAlbum(album.getText().trim());
+        		existingSong.setYear(year.getText().trim());
+			
+			//throws error message if there is a '|' in the name, artist, or album
+        		if(existingSong.getName().contains("|") || existingSong.getArtist().contains("|") || existingSong.getAlbum().contains("|")) {
+        			Alert alert2 = new Alert(AlertType.ERROR);
+        			alert2.setTitle("Add Error");
+        			alert2.setHeaderText(null);
+        			alert2.setContentText(" Cannot use the | symbol");
+        			alert2.showAndWait();
+        			return;
+        		}
         		
         		//edits listview song to match once edited
         		int selectedSong = obvSongs.indexOf(existingSong);
