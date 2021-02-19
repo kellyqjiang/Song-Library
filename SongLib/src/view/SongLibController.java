@@ -105,6 +105,15 @@ public class SongLibController {
 		newSong.setAlbum(album.getText().trim());
 		newSong.setYear(year.getText().trim());
 		
+		if(!newSong.getYear().isBlank() && newSong.getYear().charAt(0) == '-') {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Add Error");
+			alert.setHeaderText(null);
+			alert.setContentText("Year cannot be negative");
+			alert.showAndWait();
+			return;
+		}
+		
 		if(newSong.getName().contains("|") || newSong.getArtist().contains("|") || newSong.getAlbum().contains("|")) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Add Error");
@@ -114,16 +123,10 @@ public class SongLibController {
 			return;
 		}
 		
-		/*for(int i = 1; i < newSong.getName().length(); i++) {
-			if(newSong.getName().charAt(i) == ' ' && !Character.isLetter(newSong.getName().charAt(i-1))) {
-				
-			}
-		}*/
-		
 		boolean isCopy = false; //if we find a copy, this will turn true
 		
 		for(int i = 0; i < obvSongs.size(); i++) { //loops into obvSongs to check if the song exists or not
-			if(obvSongs.get(i).getName().equalsIgnoreCase(name.getText()) && obvSongs.get(i).getArtist().equalsIgnoreCase(artist.getText())) {
+			if(obvSongs.get(i).getName().equalsIgnoreCase(newSong.getName()) && obvSongs.get(i).getArtist().equalsIgnoreCase(newSong.getArtist())) {
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Add Error");
 				alert.setHeaderText(null);
@@ -150,7 +153,7 @@ public class SongLibController {
 	        if (result.get() == ButtonType.OK) {
 	        	obvSongs.add(newSong);
 	        	
-	        	//sorting alphabetically
+	        	//sorting alphabetically by song name
 	    		Comparator<Song> comparator = Comparator.comparing(Song::getName, String.CASE_INSENSITIVE_ORDER);
 	    		obvSongs.sort(comparator);
 	    		
@@ -211,6 +214,8 @@ public class SongLibController {
 		
 		boolean isCopy = false;
 		
+		Song existingSong = songs.getSelectionModel().getSelectedItem();
+		
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Edit Confirmation");
 		alert.setHeaderText(null);
@@ -218,7 +223,7 @@ public class SongLibController {
 		Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
         	for(int i = 0; i < obvSongs.size(); i++) { //loops into obvSongs to check if the song exists or not
-    			if(obvSongs.get(i).getName().equalsIgnoreCase(name.getText()) && obvSongs.get(i).getArtist().equalsIgnoreCase(artist.getText())) {
+    			if(obvSongs.get(i).getName().equalsIgnoreCase(name.getText().trim()) && obvSongs.get(i).getArtist().equalsIgnoreCase(artist.getText().trim())) {
     				Alert alert2 = new Alert(AlertType.ERROR);
     				alert2.setTitle("Edit Error");
     				alert2.setHeaderText(null);
@@ -230,14 +235,22 @@ public class SongLibController {
     		}
         	
         	if(!isCopy) {
-        		Song existingSong = songs.getSelectionModel().getSelectedItem();
         		
         		existingSong.setName(name.getText().trim());
         		existingSong.setArtist(artist.getText().trim());
         		existingSong.setAlbum(album.getText().trim());
         		existingSong.setYear(year.getText().trim());
         		
-        		if (name.getText().equals("") || artist.getText().equals("") || existingSong.getName().isBlank() || existingSong.getArtist().isBlank()) {  
+        		if(!existingSong.getYear().isBlank() && existingSong.getYear().charAt(0) == '-') {
+        			Alert alert3 = new Alert(AlertType.ERROR);
+        			alert3.setTitle("Add Error");
+        			alert3.setHeaderText(null);
+        			alert3.setContentText("Year cannot be negative");
+        			alert3.showAndWait();
+        			return;
+        		}
+        		
+        		if (existingSong.getName().equals("") || existingSong.getArtist().equals("") || existingSong.getName().isBlank() || existingSong.getArtist().isBlank()) {  
         			alert = new Alert(AlertType.ERROR);
         			alert.setTitle("Add Error");
         			alert.setHeaderText(null);
