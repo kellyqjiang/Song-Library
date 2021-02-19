@@ -1,4 +1,7 @@
-  
+/* Danielle Rash
+ * Kelly Jiang
+ */
+
 package view;
 
 import javafx.collections.FXCollections;
@@ -15,18 +18,11 @@ import javafx.stage.Stage;
 
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.Scanner;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter; 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 public class SongLibController {
-	
-	//null error???
-	//file reading/writing
 	
 	@FXML         
 	ListView<Song> songs;
@@ -87,14 +83,16 @@ public class SongLibController {
 
 	private void showDetails() {                
 		try {
-		Song song = songs.getSelectionModel().getSelectedItem();
-		
-		name.setText(song.getName());
-		artist.setText(song.getArtist());
-		album.setText(song.getAlbum());
-		year.setText(song.getYear());
+			Song song = songs.getSelectionModel().getSelectedItem();
+			
+			name.setText(song.getName());
+			artist.setText(song.getArtist());
+			album.setText(song.getAlbum());
+			year.setText(song.getYear());
 		} catch(java.lang.NullPointerException exception) {
 
+		} catch(java.lang.RuntimeException exception) {
+				
 		}
 	}
 	
@@ -107,7 +105,6 @@ public class SongLibController {
 		newSong.setAlbum(album.getText().trim());
 		newSong.setYear(year.getText().trim());
 		
-		//throws error message if there is a '|' in the name, artist, or album
 		if(newSong.getName().contains("|") || newSong.getArtist().contains("|") || newSong.getAlbum().contains("|")) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Add Error");
@@ -117,10 +114,16 @@ public class SongLibController {
 			return;
 		}
 		
+		/*for(int i = 1; i < newSong.getName().length(); i++) {
+			if(newSong.getName().charAt(i) == ' ' && !Character.isLetter(newSong.getName().charAt(i-1))) {
+				
+			}
+		}*/
+		
 		boolean isCopy = false; //if we find a copy, this will turn true
 		
 		for(int i = 0; i < obvSongs.size(); i++) { //loops into obvSongs to check if the song exists or not
-			if(obvSongs.get(i).getName().equals(name.getText().trim()) && obvSongs.get(i).getArtist().equals(artist.getText().trim())) {
+			if(obvSongs.get(i).getName().equalsIgnoreCase(name.getText()) && obvSongs.get(i).getArtist().equalsIgnoreCase(artist.getText())) {
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Add Error");
 				alert.setHeaderText(null);
@@ -132,13 +135,13 @@ public class SongLibController {
 		}
 		
 		//checking if at least song name and artist are filled out
-		if (name.getText().equals("") || artist.getText().equals("")) {  
+		if (name.getText().equals("") || artist.getText().equals("") || newSong.getName().isBlank() || newSong.getArtist().isBlank()) {  
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Add Error");
 			alert.setHeaderText(null);
 			alert.setContentText("Please add at least a song name and artist");
 			alert.showAndWait();
-		}else if(!isCopy){ //if it's a copy, we will not go into this if statement, if it's a new song, we confirm with user
+		} else if(!isCopy){ //if it's a copy, we will not go into this if statement, if it's a new song, we confirm with user
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Add Confirmation");
 			alert.setHeaderText(null);
@@ -148,7 +151,7 @@ public class SongLibController {
 	        	obvSongs.add(newSong);
 	        	
 	        	//sorting alphabetically
-	    		Comparator<Song> comparator = Comparator.comparing(Song::getName);
+	    		Comparator<Song> comparator = Comparator.comparing(Song::getName, String.CASE_INSENSITIVE_ORDER);
 	    		obvSongs.sort(comparator);
 	    		
 	    		int selectIndex = obvSongs.indexOf(newSong);
@@ -158,7 +161,7 @@ public class SongLibController {
 		
 	}
 	
-	public void delete(ActionEvent e) {
+	public void delete(ActionEvent e) throws java.lang.reflect.InvocationTargetException {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Delete Confirmation");
 		alert.setHeaderText(null);
@@ -167,23 +170,38 @@ public class SongLibController {
         if (result.get() == ButtonType.OK) {
         	Song song = songs.getSelectionModel().getSelectedItem();
         	int selectIndex = obvSongs.indexOf(song);
+        	
+        	if(!(obvSongs.get(selectIndex).getName().equalsIgnoreCase(name.getText()) && obvSongs.get(selectIndex).getArtist().equalsIgnoreCase(artist.getText()))) {
+        		Alert alert2 = new Alert(AlertType.ERROR);
+    			alert2.setTitle("Delete Error");
+    			alert2.setHeaderText(null);
+    			alert2.setContentText("Song selected doesn't match our records!");
+    			alert2.showAndWait();
+    			return;
+        	}
+        	
     		obvSongs.remove(song);
     		
-    		//select next, prev, or none depending on list after deleting the song
     		if(obvSongs.isEmpty()) {
     			name.setText("");
     			artist.setText("");
     			album.setText("");
     			year.setText("");
-    		} else if(obvSongs.get(selectIndex) != null) {
-    			songs.getSelectionModel().select(selectIndex);
-    			Song curr = songs.getSelectionModel().getSelectedItem();
-    			name.setText(curr.getName());
-    			artist.setText(curr.getArtist());
-    			album.setText(curr.getAlbum());
-    			year.setText(curr.getYear());
-    		} else if(obvSongs.get(selectIndex-1) != null) {
-    			songs.getSelectionModel().select(selectIndex-1);
+    		} else if(selectIndex == obvSongs.size()) {
+    			selectIndex -= 1;
+    		} 
+    		if(obvSongs.size() > 0) {
+    			if(obvSongs.get(selectIndex) != null) {
+    				songs.getSelectionModel().select(selectIndex);
+    				Song curr = songs.getSelectionModel().getSelectedItem();
+    				name.setText(curr.getName());
+    				artist.setText(curr.getArtist());
+    				album.setText(curr.getAlbum());
+    				year.setText(curr.getYear());
+    			} else if(obvSongs.get(selectIndex-1) != null) {
+    				songs.getSelectionModel().select(selectIndex-1);
+    			}
+    		
     		}
     		
         }
@@ -200,14 +218,13 @@ public class SongLibController {
 		Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
         	for(int i = 0; i < obvSongs.size(); i++) { //loops into obvSongs to check if the song exists or not
-    			if(obvSongs.get(i).getName().equals(name.getText().trim()) && obvSongs.get(i).getArtist().equals(artist.getText().trim())) {
+    			if(obvSongs.get(i).getName().equalsIgnoreCase(name.getText()) && obvSongs.get(i).getArtist().equalsIgnoreCase(artist.getText())) {
     				Alert alert2 = new Alert(AlertType.ERROR);
     				alert2.setTitle("Edit Error");
     				alert2.setHeaderText(null);
     				alert2.setContentText("A song with this name and artist already exists!");
     				alert2.showAndWait();
     				isCopy = true;
-    			} else {
     				break;
     			}
     		}
@@ -219,8 +236,16 @@ public class SongLibController {
         		existingSong.setArtist(artist.getText().trim());
         		existingSong.setAlbum(album.getText().trim());
         		existingSong.setYear(year.getText().trim());
-			
-			//throws error message if there is a '|' in the name, artist, or album
+        		
+        		if (name.getText().equals("") || artist.getText().equals("") || existingSong.getName().isBlank() || existingSong.getArtist().isBlank()) {  
+        			alert = new Alert(AlertType.ERROR);
+        			alert.setTitle("Add Error");
+        			alert.setHeaderText(null);
+        			alert.setContentText("Please add at least a song name and artist");
+        			alert.showAndWait();
+        			return;
+        		}
+        		
         		if(existingSong.getName().contains("|") || existingSong.getArtist().contains("|") || existingSong.getAlbum().contains("|")) {
         			Alert alert2 = new Alert(AlertType.ERROR);
         			alert2.setTitle("Add Error");
@@ -230,9 +255,16 @@ public class SongLibController {
         			return;
         		}
         		
+
+        		Comparator<Song> comparator = Comparator.comparing(Song::getName, String.CASE_INSENSITIVE_ORDER);
+	    		obvSongs.sort(comparator);
+	    		
+	    		int selectIndex = obvSongs.indexOf(existingSong);
+	    		songs.getSelectionModel().select(selectIndex);
+        		
         		//edits listview song to match once edited
-        		int selectedSong = obvSongs.indexOf(existingSong);
-        		songs.getItems().set(selectedSong, existingSong);
+        		//int selectedSong = obvSongs.indexOf(existingSong);
+        		//songs.getItems().set(selectedSong, existingSong);
         	}
         }
 	}
